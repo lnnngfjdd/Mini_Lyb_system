@@ -113,7 +113,9 @@ MONGO_URI = config("MONGO_URI")
 
 mongoengine.connect(
     db=MONGO_DATABASE_NAME,
-    host=MONGO_URI
+    host=MONGO_URI,
+    tls=True,
+    retryWrites=False
 )
 
 #To make this work with MongoDB, you may need to adjust your queries and models accordingly.

@@ -24,10 +24,13 @@ class BorrowViewSet(viewsets.ViewSet):
         return Response(serializer.data)
 
     def create(self, request):
+        print("Incoming borrow payload:", request.data)  # debug
         serializer = BorrowSerializer(data=request.data)
         if serializer.is_valid():
             borrow = Borrow(**serializer.validated_data).save()
+            print("Saved borrow:", borrow.to_json())  # debug
             return Response(BorrowSerializer(borrow).data, status=status.HTTP_201_CREATED)
+        print("Validation errors:", serializer.errors)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def update(self, request, pk=None):
@@ -56,7 +59,23 @@ BORROW_SERVICE_URL = "http://localhost:8002/api/borrows/"  # hits BorrowViewSet,
 class BorrowOrchestrator(APIView):
     def get(self, request):
         """Fetch borrow records and enrich with user + book details"""
-        borrows = requests.get(BORROW_SERVICE_URL).json()
+        resp = requests.get(BORROW_SERVICE_URL)
+
+        if resp.status_code != 200:
+            return Response({
+                "error": "Borrow service failed",
+                "status": resp.status_code,
+                "details": resp.text,  # shows what borrow-service actually returned
+            }, status=resp.status_code)
+
+        try:
+            borrows = resp.json()
+        except ValueError:
+            return Response({
+                "error": "Borrow service did not return JSON",
+                "raw": resp.text,
+            }, status=500)
+        
         users = {u["id"]: u for u in requests.get(USER_SERVICE_URL).json()}
         books = {b["id"]: b for b in requests.get(BOOK_SERVICE_URL).json()}
 
