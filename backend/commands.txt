@@ -1,0 +1,15 @@
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+
+venv\Scripts\activate 
+
+----Book Service----
+cd backend/book_service
+py manage.py runserver 8001
+
+----Borrow Service----
+cd backend/book_service
+py manage.py runserver 8002
+
+----User Service----
+cd backend/user_service
+py manage.py runserver 8003

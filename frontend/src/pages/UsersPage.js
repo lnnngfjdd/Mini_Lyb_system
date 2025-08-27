@@ -9,7 +9,7 @@ function UsersPage() {
 
   // Load all users
   const fetchUsers = () => {
-    axios.get("http://localhost:8000/api/users/")
+    axios.get("http://localhost:8003/api/users/")
       .then(res => setUsers(res.data))
       .catch(err => console.error(err));
   };
@@ -22,7 +22,7 @@ function UsersPage() {
   const handleAddUser = (e) => {
     e.preventDefault();
 
-    axios.post("http://localhost:8000/api/users/", {
+    axios.post("http://localhost:8003/api/users/", {
       name,
       email,
       role,

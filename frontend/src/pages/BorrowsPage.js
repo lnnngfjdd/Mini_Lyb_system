@@ -10,34 +10,66 @@ function BorrowsPage() {
   const [borrowDate, setBorrowDate] = useState("");
 
   useEffect(() => {
-    axios.get("http://localhost:8000/api/borrows/").then(res => setBorrows(res.data));
-    axios.get("http://localhost:8000/api/users/").then(res => setUsers(res.data));
-    axios.get("http://localhost:8000/api/books/").then(res => setBooks(res.data));
+    // fetch enriched borrows from orchestrator
+    axios.get("http://localhost:8002/api/borrow-orchestrator/")
+      .then(res => {
+        console.log("Fetched borrows:", res.data);
+        setBorrows(res.data);
+      })
+      .catch(err => console.error("Error fetching borrows:", err));
+
+    // fetch users
+    axios.get("http://localhost:8003/api/users/")
+      .then(res => {
+        console.log("Fetched users:", res.data);
+        setUsers(res.data);
+      })
+      .catch(err => console.error("Error fetching users:", err));
+
+    // fetch books
+    axios.get("http://localhost:8001/api/books/")
+      .then(res => {
+        console.log("Fetched books:", res.data);
+        setBooks(res.data);
+      })
+      .catch(err => console.error("Error fetching books:", err));
   }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    axios.post("http://localhost:8000/api/borrows/", {
+    console.log("Submitting borrow with:", {
+      user: userId,
+      book: bookId,
+      borrow_date: borrowDate,
+    });
+
+    // send request to orchestrator (not raw CRUD)
+    axios.post("http://localhost:8002/api/borrow-orchestrator/", {
       user: userId,
       book: bookId,
       borrow_date: borrowDate,
     })
-    .then(res => setBorrows([...borrows, res.data]))
-    .catch(err => console.error(err));
+    .then(res => {
+      console.log("Borrow created:", res.data);
+      setBorrows([...borrows, res.data]); // append enriched borrow
+    })
+    .catch(err => {
+      console.error("Error creating borrow:", err.response ? err.response.data : err);
+    });
   };
 
   return (
     <div>
       <h2>Borrow Records</h2>
       <form onSubmit={handleSubmit}>
-        <select onChange={(e) => setUserId(e.target.value)} required>
+        <select value={userId} onChange={(e) => setUserId(e.target.value)} required>
           <option value="">Select User</option>
           {users.map(user => (
             <option key={user.id} value={user.id}>{user.name}</option>
           ))}
         </select>
 
-        <select onChange={(e) => setBookId(e.target.value)} required>
+        <select value={bookId} onChange={(e) => setBookId(e.target.value)} required>
           <option value="">Select Book</option>
           {books.map(book => (
             <option key={book.id} value={book.id}>{book.title}</option>
@@ -56,7 +88,7 @@ function BorrowsPage() {
       <ul>
         {borrows.map(borrow => (
           <li key={borrow.id}>
-            User: {borrow.user.name} borrowed {borrow.book.title} on {borrow.borrow_date}
+            User: {borrow.user?.name} borrowed {borrow.book?.title} on {borrow.borrow_date}
           </li>
         ))}
       </ul>

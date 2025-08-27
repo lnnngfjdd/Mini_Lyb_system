@@ -15,8 +15,19 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from borrow.views import BorrowViewSet, BorrowOrchestrator
+
+router = DefaultRouter()
+router.register(r'borrows', BorrowViewSet, basename='borrow')  # raw CRUD service
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/', include(router.urls)),  # gives you /api/borrows/
+    path("api/borrow-orchestrator/", BorrowOrchestrator.as_view(), name="borrow-orchestrator"),
 ]
+
+
+print(urlpatterns)
+

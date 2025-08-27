@@ -10,7 +10,7 @@ function BooksPage() {
   // Fetch books
   const fetchBooks = () => {
     axios
-      .get("http://localhost:8000/api/books/")
+      .get("http://localhost:8001/api/books/")
       .then((res) => setBooks(res.data))
       .catch((err) => console.error(err));
   };
@@ -26,7 +26,7 @@ function BooksPage() {
     if (editingBook) {
       // Update existing book
       axios
-        .put(`http://localhost:8000/api/books/${editingBook._id.$oid || editingBook._id}/`, {
+        .put(`http://localhost:8001/api/books/${editingBook._id.$oid || editingBook._id}/`, {
           title,
           author,
         })
@@ -40,7 +40,7 @@ function BooksPage() {
     } else {
       // Add new book
       axios
-        .post("http://localhost:8000/api/books/", { title, author })
+        .post("http://localhost:8001/api/books/", { title, author })
         .then(() => {
           setTitle("");
           setAuthor("");
@@ -53,7 +53,7 @@ function BooksPage() {
   // Delete Book
   const handleDelete = (id) => {
     axios
-      .delete(`http://localhost:8000/api/books/${id}/`)
+      .delete(`http://localhost:8001/api/books/${id}/`)
       .then(() => fetchBooks())
       .catch((err) => console.error("Error deleting book:", err));
   };
