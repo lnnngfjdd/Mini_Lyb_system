@@ -2,9 +2,9 @@ name: CI - Mini Library System
 
 on:
   push:
-    branches: [ "cont_int" ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ "cont_int" ]
+    branches: [ "main" ]
 
 jobs:
   build-and-test:
